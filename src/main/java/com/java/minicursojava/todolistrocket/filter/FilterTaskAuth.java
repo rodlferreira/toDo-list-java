@@ -18,14 +18,6 @@ public class FilterTaskAuth extends OncePerRequestFilter {
     @Autowired
     private IUserRepository userRepository;
 
-
-    /**
-     * @param request
-     * @param response
-     * @param filterChain
-     * @throws ServletException
-     * @throws IOException
-     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -52,10 +44,11 @@ public class FilterTaskAuth extends OncePerRequestFilter {
             if (user == null) {
                 response.sendError(401, "Usuário sem autorização");
             } else {
-                // Validar senha
 
+                // Validar senha
                 var passwordVerify = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword());
                 if (passwordVerify.verified) {
+
                     //Segue viagem
                     request.setAttribute("idUser", user.getId());
                     filterChain.doFilter(request, response);
