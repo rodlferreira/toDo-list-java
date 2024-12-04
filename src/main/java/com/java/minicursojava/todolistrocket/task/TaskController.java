@@ -1,5 +1,6 @@
 package com.java.minicursojava.todolistrocket.task;
 
+import com.java.minicursojava.todolistrocket.utils.Utils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,6 +43,28 @@ public class TaskController {
         var idUser = request.getAttribute("idUser");
         var tasks = this.taskRepository.findByIdUser((UUID) idUser);
         return tasks;
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity update(@RequestBody TaskModel taskModel, HttpServletRequest request, @PathVariable UUID id) {
+
+        var task = this.taskRepository.findById(id).orElse(null);
+
+        if(task == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tarefa inexistente.");
+        }
+
+        var idUser = request.getAttribute("idUser");
+
+        if (!task.getIdUser().equals(idUser)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("O usuário não tem permissão para alterar essa tarefa!");
+        }
+
+        Utils.copyNonNullPropreties(taskModel, task);
+
+        var taskUpdated = this.taskRepository.save(task);
+        return ResponseEntity.ok().body(taskUpdated);
+
     }
 
 }
